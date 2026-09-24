@@ -1,0 +1,16 @@
+{
+  "name": "apexrpc-dummy",
+  "version": "1.0.0",
+  "description": "Apex Legends Discord RPC via Dummy Steam Account (tracking friend Rich Presence)",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "build": "nexe -i main.js -r \"Constants/**/*\" -r \"node_modules/**/*\" --target windows-x64-14.15.3 -o ApexRPC-Dummy.exe"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "dotenv": "^16.4.7",
+    "prompts": "^2.4.2",
+    "steam-user": "^4.20.2"
+  }
+}

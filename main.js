@@ -214,14 +214,18 @@ async function clearDiscordActivity() {
 // -------------------------------------------------------------
 async function checkApexProcess() {
     try {
-        const processes = await find('name', 'r5apex', true);
-        const running = processes.length > 0;
+        const processes = await find('name', /r5apex/i);
+        const apexProcess = processes.find(p => {
+            const name = (p.name || '').toLowerCase();
+            return name === 'r5apex.exe' || name === 'r5apex_dx12.exe' || name.startsWith('r5apex');
+        });
+        const running = Boolean(apexProcess);
 
         if (running && !isApexRunning) {
             // Game just started
             isApexRunning = true;
             gameStartTime = new Date();
-            log('info', `Apex Legends detected! Starting Discord presence...`);
+            log('info', `Apex Legends detected (${apexProcess.name})! Starting Discord presence...`);
 
             await initDiscordRpc();
             currentMapData = await fetchMapRotation();
@@ -269,7 +273,7 @@ async function start() {
     console.log(` Server Region : ${SERVER_NAME}`);
     console.log(` Default Mode  : ${getModeLabel(DEFAULT_MODE)}`);
     console.log(` Live Map API  : ${ALS_API_KEY ? 'Enabled (ALS API)' : 'Using Fallback (' + FALLBACK_MAP + ')'}`);
-    console.log(' Status        : Waiting for Apex Legends (r5apex.exe)...');
+    console.log(' Status        : Waiting for Apex Legends (r5apex.exe / r5apex_dx12.exe)...');
     console.log('======================================================\n');
 
     if (!ALS_API_KEY) {

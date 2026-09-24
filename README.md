@@ -1,2 +1,3 @@
 - Original from [Holfz](https://github.com/Holfz/ApexRPC)
 - I change from Login with password to login with QR Code and 1 time use (You need to re-login via QR code if you close the program)
+- Since I create to use by my own, any bug or any feature it's on my own passion to fix/add

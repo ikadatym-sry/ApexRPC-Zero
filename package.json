@@ -1,0 +1,14 @@
+{
+  "name": "apexrpc-zero",
+  "version": "1.0.0",
+  "description": "Zero-Login Discord Rich Presence for Apex Legends (Process Detection + Map Rotation)",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "dotenv": "^16.4.7",
+    "find-process": "^1.4.7"
+  }
+}

@@ -4,7 +4,8 @@
   "description": "Zero-Login Discord Rich Presence for Apex Legends (Process Detection + Map Rotation)",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "build": "nexe main.js -r \"constants/**/*\" -r \"node_modules/**/*\" --target windows-x64-14.15.3 -o ApexRPC-Zero.exe"
   },
   "dependencies": {
     "discord-rpc": "^4.0.1",

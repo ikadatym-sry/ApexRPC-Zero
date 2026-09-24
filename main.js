@@ -1,4 +1,19 @@
+const path = require('path');
+const fs = require('fs');
+
+// Resolve .env from working directory or .exe directory
+const possibleEnvPaths = [
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(path.dirname(process.execPath), '.env')
+];
+for (const p of possibleEnvPaths) {
+    if (fs.existsSync(p)) {
+        require('dotenv').config({ path: p });
+        break;
+    }
+}
 require('dotenv').config();
+
 const DiscordRPC = require('discord-rpc');
 const find = require('find-process');
 const { resolveMapInfo } = require('./constants/maps');
@@ -13,6 +28,34 @@ const FALLBACK_MAP = (process.env.FALLBACK_MAP || "World's Edge").trim();
 const DISCORD_CLIENT_ID = (process.env.DISCORD_CLIENT_ID || '893911040713191444').trim();
 const PROCESS_POLL_INTERVAL = parseInt(process.env.PROCESS_POLL_INTERVAL_MS, 10) || 5000;
 const MAP_POLL_INTERVAL = parseInt(process.env.MAP_POLL_INTERVAL_MS, 10) || 120000;
+
+// Helper: HTTP GET JSON compatible with all Node versions
+function requestJson(url) {
+    if (typeof fetch === 'function') {
+        return fetch(url, { headers: { 'User-Agent': 'ApexRPC-Zero/1.0' } }).then(async (res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        });
+    }
+
+    return new Promise((resolve, reject) => {
+        const https = require('https');
+        https.get(url, { headers: { 'User-Agent': 'ApexRPC-Zero/1.0' } }, (res) => {
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                return reject(new Error(`HTTP ${res.statusCode}`));
+            }
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }).on('error', reject);
+    });
+}
 
 // -------------------------------------------------------------
 // Runtime State
@@ -62,14 +105,7 @@ async function fetchMapRotation() {
 
     try {
         const url = `https://api.mozambiquehe.re/maprotation?version=2&auth=${ALS_API_KEY}`;
-        const response = await fetch(url, { headers: { 'User-Agent': 'ApexRPC-Zero/1.0' } });
-
-        if (!response.ok) {
-            log('warn', `Map API returned HTTP ${response.status}. Using fallback.`);
-            return { mapName: FALLBACK_MAP, assetUrl: null, remainingTimer: null };
-        }
-
-        const data = await response.json();
+        const data = await requestJson(url);
         let targetData = null;
 
         if (DEFAULT_MODE === 'ranked' && data.ranked?.current) {
